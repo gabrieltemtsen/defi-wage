@@ -30,7 +30,7 @@ const Home: NextPage = () => {
 
         <div className={styles.grid}>
           <a className={styles.card} href="https://rainbowkit.com">
-            <h2>RainbowKit Documentation &rarr;</h2>
+            <h2 className=''>RainbowKit Documentation &rarr;</h2>
             <p>Learn how to customize your wallet connection flow.</p>
           </a>
 
