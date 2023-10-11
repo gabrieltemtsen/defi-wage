@@ -62,10 +62,10 @@ import { writeContract, readContract } from "@wagmi/core";
 
                 <div className="grow ml-5">
                   <h3 className="group-hover:text-blue-600 font-semibold text-gray-800 dark:group-hover:text-gray-400 dark:text-gray-200">
-                    <span className="font-bold">5</span> Groups
+                    <span className="font-bold">5</span> Companies
                   </h3>
                   <p className="text-sm text-gray-500">
-                    All the Groups you are, and have created
+                    All the Companies you are, and have created
                   </p>
                 </div>
               </div>
@@ -92,10 +92,10 @@ import { writeContract, readContract } from "@wagmi/core";
 
                 <div className="grow ml-5">
                   <h3 className="group-hover:text-blue-600 font-semibold text-gray-800 dark:group-hover:text-gray-400 dark:text-gray-200">
-                    <span className="font-bold">10</span> Contributions
+                    <span className="font-bold">10</span> Loans
                   </h3>
                   <p className="text-sm text-gray-500">
-                    All your contributions so far
+                    All your loans so far
                   </p>
                 </div>
               </div>
@@ -122,10 +122,10 @@ import { writeContract, readContract } from "@wagmi/core";
 
                 <div className="grow ml-5">
                   <h3 className="group-hover:text-blue-600 font-semibold text-gray-800 dark:group-hover:text-gray-400 dark:text-gray-200">
-                    <span className="font-bold">5</span> Rounds Completed
+                    <span className="font-bold">500</span> Payments Completed
                   </h3>
                   <p className="text-sm text-gray-500">
-                    All the rounds completed by you and your group members
+                    All the payments completed in your Company
                   </p>
                 </div>
               </div>

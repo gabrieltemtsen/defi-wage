@@ -163,7 +163,7 @@ const SideNav = ({
                   </ul>
                 </section>
                 <div className="divider my-0"></div>
-                <section className="menu-section px-4">
+                {/* <section className="menu-section px-4">
                   <span className="menu-title">Utility</span>
                   <ul className="menu-items">
                     <li className="menu-item">
@@ -221,7 +221,7 @@ const SideNav = ({
                       Contributions
                     </li>
                   </ul>
-                </section>
+                </section> */}
               </nav>
             </section>
             <section className="sidebar-footer justify-end bg-gray-2 pt-2">
