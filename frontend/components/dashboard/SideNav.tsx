@@ -1,10 +1,11 @@
+/* eslint-disable @next/next/no-img-element */
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import { shortenAddress } from "../../utils/shortenAddress";
 import { readContract } from "@wagmi/core";
 import { useEffect, useState } from "react";
 
-export const SideNav = ({
+const SideNav = ({
   onItemClick,
   contractAddress,
   contractABI,
@@ -66,9 +67,9 @@ export const SideNav = ({
           <aside className="sidebar sidebar-fixed-left sidebar-mobile h-full justify-start max-sm:fixed max-sm:-translate-x-full">
             <section className="sidebar-title items-center p-4">
               <div className="flex flex-col">
-                <a href="/dashboard">
+                <a href="/">
                   <span className="text-2xl font-bold cursor-pointer">
-                    Covalence
+                    Defi Wage
                   </span>
                 </a>
               </div>
@@ -82,25 +83,7 @@ export const SideNav = ({
                       className="menu-item menu-active"
                       onClick={() => onItemClick("general")}
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 opacity-75"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
+                
                       <span>General</span>
                     </li>
 
@@ -108,42 +91,10 @@ export const SideNav = ({
                       className="menu-item "
                       onClick={() => onItemClick("create-group")}
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 opacity-75"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                        />
-                      </svg>
-                      <span>Create Group</span>
+                     
+                      <span>Loans</span>
                     </li>
-                    <li
-                      className="menu-item"
-                      onClick={() => onItemClick("contribut-coming-soon")}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 opacity-75"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                        />
-                      </svg>
-                      <span>Contribute</span>
-                    </li>
+                    
                     <li>
                       <input
                         type="checkbox"
@@ -156,7 +107,7 @@ export const SideNav = ({
                       >
                         <div className="flex gap-2">
                           <svg
-                            xmlns="http://www.w3.org/2000/svg"
+                            xmlns="http://www.w3.org/2000/svg"      
                             className="h-5 w-5 opacity-75"
                             fill="none"
                             viewBox="0 0 24 24"
@@ -169,7 +120,7 @@ export const SideNav = ({
                               d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                             />
                           </svg>
-                          <span>Your Groups</span>
+                          <span>Your Companies</span>
                         </div>
 
                         <span className="menu-icon">
@@ -190,10 +141,12 @@ export const SideNav = ({
 
                       <div className="menu-item-collapse">
                         <div className="min-h-0">
+						<label onClick={() => onItemClick('Group')} className="menu-item ml-6">ETH Global-TeamBTC</label>
+						<label className="menu-item ml-6">TeamEthers</label> 
                           {/* <label  className="menu-item menu-item-disabled ml-6">Open-Data-Hack-TeamPluto</label>
 										<label onClick={() => onItemClick('Group')} className="menu-item ml-6">ETH Global-TeamBTC</label>
 										<label className="menu-item ml-6">TeamEthers</label> */}
-                          {userGroups.map((group) => (
+                          {/* {userGroups.map((group) => (
                             <label
                               key={group.ID}
                               onClick={() =>
@@ -203,7 +156,7 @@ export const SideNav = ({
                             >
                               {group.name}
                             </label>
-                          ))}
+                          ))} */}
                         </div>
                       </div>
                     </li>
@@ -315,3 +268,5 @@ export const SideNav = ({
     </>
   );
 };
+
+export default SideNav;
