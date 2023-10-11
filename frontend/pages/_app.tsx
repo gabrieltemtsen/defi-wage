@@ -28,8 +28,8 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
 );
 
 const { connectors } = getDefaultWallets({
-  appName: 'RainbowKit App',
-  projectId: 'YOUR_PROJECT_ID',
+  appName: 'Defi-Wage',
+  projectId: '91a0d512b1abcddf1e48675a4c4014b2',
   chains,
 });
 
