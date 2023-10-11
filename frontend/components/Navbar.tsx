@@ -11,7 +11,7 @@ const Navbar = () => {
       <Head>
         <title>DeFI Wage</title>
         <meta
-          content="Buy and Sell Digital Services withiin an Escrow Framework"
+          content="Pay Salaries and allow workers apply for loans seamlessly"
           name="description"
         />
         <link href="/favicon.ico" rel="icon" />
@@ -23,13 +23,7 @@ const Navbar = () => {
           </Link>
         </div>
         <div className="flex-none gap-2">
-          <div className="form-control">
-            <input
-              type="text"
-              placeholder="Search"
-              className="input input-bordered w-24 md:w-auto"
-            />
-          </div>
+          
           <div className="dropdown dropdown-end">
             <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
               <div className="w-10 rounded-full">
