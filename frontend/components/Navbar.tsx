@@ -49,12 +49,10 @@ const Navbar = () => {
                <li>
                 <Link href="/profile" className="justify-between">
                   Profile
-                  <span className="badge">ENS</span>
                 </Link>
               </li>
-              <li ><a>Logout</a></li>
+              {/* <li ><a>Logout</a></li> */}
              
-               <li ><a>Sign in with ETH</a></li>
              
              
              
