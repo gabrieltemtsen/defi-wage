@@ -4,6 +4,7 @@ import { useAccount } from "wagmi";
 import { shortenAddress } from "../../utils/shortenAddress";
 import { readContract } from "@wagmi/core";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 const SideNav = ({
   onItemClick,
@@ -67,11 +68,11 @@ const SideNav = ({
           <aside className="sidebar sidebar-fixed-left sidebar-mobile h-full justify-start max-sm:fixed max-sm:-translate-x-full">
             <section className="sidebar-title items-center p-4">
               <div className="flex flex-col">
-                <a href="/">
+                <Link href="/">
                   <span className="text-2xl font-bold cursor-pointer">
                     Defi Wage
                   </span>
-                </a>
+                </Link>
               </div>
             </section>
             <section className="sidebar-content">
