@@ -37,7 +37,7 @@ function Dashboard({
             address={address}
           />
         );
-      } else if (selectedItem === "create-group") {
+      } else if (selectedItem === "loans") {
         return (
         //   <CreateGroup
         //     contractAddress={contractAddress}
