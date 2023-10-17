@@ -170,7 +170,7 @@ const Hero = () => {
                           Create a company workspace
                         </Dialog.Title>
                         <form method="dialog" className="modal-box ">
-                          <h1>Create Ads</h1>
+                          <h1> Organisation details </h1>
                           <div className="form-control w-full max-w-xs ">
                             <label className="label">
                               <span className="label-text">Company Name</span>
@@ -198,7 +198,7 @@ const Hero = () => {
                             />
                           </div>
                          
-                          <div className="form-control w-full max-w-xs ">
+                          <div className="form-control mt-3 w-full max-w-xs ">
                             <label className="label">
                               <span className="label-text">Company Logo</span>
                             </label>
