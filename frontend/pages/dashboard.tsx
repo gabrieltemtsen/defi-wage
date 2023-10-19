@@ -4,6 +4,7 @@ import { useAccount } from "wagmi";
 import { useEffect, useState } from "react";
 import SideNav from "../components/dashboard/SideNav";
 import { Overview, PleaseLogin } from "../components/dashboard";
+import { CompanyInfo } from "../components/dashboard/CompanyView";
 
 function Dashboard({
   contractAddress,
@@ -48,13 +49,13 @@ function Dashboard({
         );
       } else if (selectedItem === "Group") {
         return (
-        //   <GroupInfo
-        //     currentID={selectedId}
-        //     contractAddress={contractAddress}
-        //     contractABI={contractABI}
-        //     address={address}
-        //   />
-        ''
+          <CompanyInfo
+            currentID={selectedId}
+            contractAddress={contractAddress}
+            contractABI={contractABI}
+            address={address}
+          />
+        
         );
       } else {
         return (
