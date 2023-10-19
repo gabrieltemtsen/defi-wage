@@ -27,7 +27,7 @@ contract DefiWage {
         _;
      }
 
-    function addEmployee(address _employeeAddress)public onlyOneEmployee(_employeeAddress) onlyAdmin returns(bool) {
+    function addEmployee(address _employeeAddress)public onlyOneEmployee(_employeeAddress) returns(bool) {
         employees.push(_employeeAddress);
        return true;
     }
@@ -38,5 +38,8 @@ contract DefiWage {
     // function getNumberOFComments() public view returns (uint256) {
     //     return commentCIDs.length;
     // }
+     function getAdmin() public view returns (address) {
+        return admin;
+    }
     
 }
