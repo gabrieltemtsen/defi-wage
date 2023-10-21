@@ -47,13 +47,15 @@ export const CompanyInfo = ({
     }
 
  try {
-  const amountToApprove = ethers.utils.parseEther(depositAmount, 6);
-
+  const depositAmountInWei = Number(depositAmount) * Math.pow(10, 6)
+  
+  const ToApprove = ethers.utils.parseEther(depositAmount);
+console.log((Number(ToApprove)))
   const approve: any = await writeContract({
     address: USDT_CONTRACT,
     abi: USDT_ABI,
     functionName: "approve",
-    args: [companyAddress,amountToApprove ],
+    args: [companyAddress,ToApprove ],
   });
  
 
@@ -61,7 +63,7 @@ export const CompanyInfo = ({
     address: companyAddress,
     abi: DEFI_WAGE_ABI,
     functionName: "depositUSDT",
-    args: [amountToApprove],
+    args: [ToApprove],
   });
   if(deposit) {
     toast.success('Deposited')
@@ -104,13 +106,15 @@ export const CompanyInfo = ({
   }
   const withdrawWages = async () => {
     try {
-      const amountToApprove = ethers.utils.parseEther(withdrawalAmount, 6);
+      const depositAmountInWei = Number(depositAmount) * Math.pow(10, 6)
+  
+  const ToApprove = ethers.utils.parseEther(depositAmount);
 
       const {hash}: any = await writeContract({
         address: companyAddress,
         abi: DEFI_WAGE_ABI,
         functionName: "withdrawSalary",
-        args: [amountToApprove],
+        args: [ToApprove],
       });
       const receipt = await waitForTransaction({ hash });
       if (!receipt) {
