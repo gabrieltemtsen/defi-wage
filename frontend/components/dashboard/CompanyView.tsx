@@ -177,9 +177,10 @@ export const CompanyInfo = ({
 
         <div className=" mt-7 divider my-0"></div>
         <div className="font-bol text-xl py-5 mb-3 pb-5">
+          
           {" "}
-          Your Available Wallet Balance: <strong> 0 USDT</strong> 
-        </div>
+          Your Available Wallet Balance: <strong> 0 USDT</strong>  <span className="font-bold ml-4 mr-4">|  </span> Your monthly wage:<strong> 0 USDT</strong>
+        </div> 
 
         <div className="flex w-full overflow-x-auto">
           

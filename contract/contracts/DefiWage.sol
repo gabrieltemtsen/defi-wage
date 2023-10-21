@@ -7,6 +7,7 @@ contract DefiWage {
     uint public createdAT;
     address public admin;
     address[] public employees;
+    mapping(address => uint) public employeeSalaries; 
     
 
     constructor(string memory _companyCID, address _admin) {
@@ -31,6 +32,15 @@ contract DefiWage {
         employees.push(_employeeAddress);
        return true;
     }
+     function setEmployeeSalary(address _employeeAddress, uint256 _salary) public onlyAdmin returns (bool) {
+        employeeSalaries[_employeeAddress] = _salary;
+        return true;
+    }
+
+    function getEmployeeSalary(address _employeeAddress) public view returns (uint) {
+        return employeeSalaries[_employeeAddress];
+    }
+
     
     function getEmployees() public view returns (address[] memory) {
         return employees;

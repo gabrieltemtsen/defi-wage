@@ -18,14 +18,16 @@ mapping(address => address[]) private employeeToCompanies;
         return true;
     }
    
-    function addEmployee(address _employeeAddress, address _companyAddress)public returns (bool){
+    function addEmployee(address _employeeAddress, address _companyAddress, uint256 _salary)public returns (bool){
     uint256 companyId = companyIDs[_companyAddress];
 
     address companyAdmin = companies[companyId].getAdmin();
     
     require (msg.sender == companyAdmin , 'No Access') ;
     companies[companyId].addEmployee(_employeeAddress);
+     companies[companyId].setEmployeeSalary(_employeeAddress, _salary);
     employeeToCompanies[_employeeAddress].push(_companyAddress);
+
     return true; 
   }
   function getCompanies() external view returns(address[] memory _companies) {
