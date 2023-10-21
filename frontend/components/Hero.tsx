@@ -12,7 +12,7 @@ import {
 import { useAccount } from "wagmi";
 import { getNetwork, watchNetwork, writeContract } from "@wagmi/core";
 import { parseEther } from "viem";
-import { AVALANCHE_CONTRACT_ADDRESS, ECOMMERCE_ABI } from "../utils/contracts";
+import { DEFI_WAGE_MANAGER_ABI, DEFI_WAGE_MANAGER_CONTRACT } from "../utils/contracts";
 import Link from "next/link";
 
 
@@ -57,26 +57,23 @@ const Hero = () => {
 
         const companyCID = await putJSONandGetHash(obj);
     
-          if(chain?.id == 43113) {
+         
             const { hash } = await writeContract({
-              address: AVALANCHE_CONTRACT_ADDRESS,
-              abi: ECOMMERCE_ABI,
-              functionName: "createProduct",
-              args: [],
+              address: DEFI_WAGE_MANAGER_CONTRACT,
+              abi: DEFI_WAGE_MANAGER_ABI,
+              functionName: "createCompany",
+              args: [companyCID],
             });
     
             if (hash) {
-              toast.success("Successfully created Product on Avalanche");
+              toast.success("Successfully created your company, click on view company to proceed");
     
               setInTxn(false);
               closeModal();
             } else {
               setInTxn(false);
             }
-          }
-     
-     
-
+          
      
       } else {
         toast.error("Please complete the form and try again");

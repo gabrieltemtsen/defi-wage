@@ -1,18 +1,20 @@
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./IERC20.sol";
 
 contract DefiWage {
     string public companyCID;
-    uint public createdAT;
+    uint public companyID;
     address public admin;
     address[] public employees;
     mapping(address => uint) public employeeSalaries;
     mapping(address => uint) public employeeWalletBalances;
 
-    constructor(string memory _companyCID, address _admin) {
+    constructor(string memory _companyCID, address _admin, uint _companyID) {
         companyCID = _companyCID;
         admin = _admin;
+        companyID = _companyID;
     }
 
     modifier onlyOneEmployee(address _employeeAddress) {
@@ -28,8 +30,8 @@ contract DefiWage {
     }
 
     function depositUSDT(uint amount) public onlyAdmin {
-        IERC20 usdt = IERC20(0x3c725F9622779c4Aa225bED987056e32326f8094);
-        require(usdt.transferFrom(admin, address(this), amount), 'Deposit failed');
+        IERC20 usdc = IERC20(0x690000EF01deCE82d837B5fAa2719AE47b156697);
+        require(usdc.transferFrom(admin, address(this), amount), 'Deposit failed');
     }
 
     function addEmployee(address _employeeAddress) public onlyOneEmployee(_employeeAddress) returns (bool) {
@@ -38,7 +40,7 @@ contract DefiWage {
         return true;
     }
 
-    function setEmployeeSalary(address _employeeAddress, uint256 _salary) public onlyAdmin returns (bool) {
+    function setEmployeeSalary(address _employeeAddress, uint256 _salary) public  returns (bool) {
         employeeSalaries[_employeeAddress] = _salary;
         return true;
     }
@@ -72,8 +74,8 @@ contract DefiWage {
         uint balance = employeeWalletBalances[employee];
         require(balance > 0, 'No salary to withdraw');
 
-        IERC20 usdt = IERC20(0x3c725F9622779c4Aa225bED987056e32326f8094);
-        require(usdt.transfer(employee, balance), 'Transfer failed');
+        IERC20 usdc = IERC20(0x690000EF01deCE82d837B5fAa2719AE47b156697);
+        require(usdc.transfer(employee, balance), 'Transfer failed');
         employeeWalletBalances[employee] = 0; // Reset wallet balance after withdrawal
     }
 }

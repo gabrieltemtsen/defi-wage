@@ -7,14 +7,16 @@ contract DefiWageManager {
     DefiWage[] public companies;
     mapping(address => uint256) public companyIDs;
     mapping(address => address[]) private employeeToCompanies;
+    mapping(address => address[]) private adminToCompanies;
 
 
     function createCompany (string memory companyCID) public  returns (bool) {
         uint256 companyID = companyIdCounter;
         companyIdCounter++;
-        DefiWage company = new DefiWage(companyCID, msg.sender);
+        DefiWage company = new DefiWage(companyCID, msg.sender,companyID);
         companies.push(company);
         companyIDs[address(company)] = companyID;
+        adminToCompanies[msg.sender].push(address(company));
         return true;
     }
    
@@ -42,6 +44,10 @@ function getEmployeeCompanies(address _employeeAddress) external view returns (a
 
     return employeeToCompanies[_employeeAddress];
 }
+function getAdminCompanies(address _admin) external view returns (address[] memory) {
+
+    return adminToCompanies[_admin];
+}
 //   function getCompaniesData(address[] memory _companyList) external view returns (string[] memory companyCID, address[] memory employees) {
 //         companyCID = new string[](_companyList.length);
 //         employees = new address[](_companyList.length);
@@ -56,3 +62,4 @@ function getEmployeeCompanies(address _employeeAddress) external view returns (a
 //     }
     
 }
+//0x1f449b09b7bceb99e3e6Ac4ACDD91dA9e99BB41b

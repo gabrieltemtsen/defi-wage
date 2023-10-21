@@ -1,22 +1,33 @@
-import { ethers } from "hardhat";
+import * as dotenv from "dotenv"
+import * as hre  from "hardhat";
+dotenv.config();
+
+const initialSupply = 100
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  
+  // here we deploy the contract
+ const DefiWageManagerContract = await hre.ethers.deployContract("DefiWageManager", );
 
-  const lockedAmount = ethers.parseEther("0.001");
+  await DefiWageManagerContract.waitForDeployment();
 
-  const lock = await ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
+ // print the address of the deployed contract
+  console.log("DeFI Wage Manager Contract Address:", DefiWageManagerContract.target);
+
+  console.log("Sleeping.....");
+  // Wait for etherscan to notice that the contract has been deployed
+  await sleep(30000);
+
+  // Verify the contract after deploying
+  await hre.run("verify:verify", {
+    address: DefiWageManagerContract.target,
+    constructorArguments: [],
   });
 
-  await lock.waitForDeployment();
-
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
-  );
+  //0xbe8a71B877d3117423f9d32B5e19Bdb82b0b93dE
+}
+function sleep(ms: any) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -3,12 +3,14 @@ import { writeContract, readContract } from "@wagmi/core";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ethers } from "ethers";
+import toast from "react-hot-toast";
+import { DEFI_WAGE_MANAGER_ABI, DEFI_WAGE_MANAGER_CONTRACT } from "../../utils/contracts";
 
 interface NavItem {
-  currentID: any;
+  contractAdd: any;
 }
 export const CompanyInfo = ({
-  currentID: groupID,
+  contractAdd: companyAddress,
   contractAddress,
   contractABI,
   address,
@@ -17,75 +19,84 @@ export const CompanyInfo = ({
   contractABI: any[];
   address: string;
 }) => {
-  const [groupName, setGroupName] = useState("");
-  const [groupLogo, setGroupLogo] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [companyLogo, setCompanyLogo] = useState("");
   const [members, setMembers] = useState<any>([]);
 
-  const [dimensionName, setDimensionName] = useState("");
-  const [dimensionWeight, setDimensionWeight] = useState("");
-  const [names, setNames] = useState<any>([]);
+  const [employeeName, setEmployeeName] = useState("");
+  const [employeeAddress, setEmployeeAddress] = useState("");
+  const [employeeWage, setEmployeeWage] = useState<any>([]);
   const [weights, setWeights] = useState<any>([]);
 
   let id = 0;
 
-  const handleAddDimension = () => {
-    // Validate inputs
-    if (!dimensionName || !dimensionWeight) {
-      alert("Please provide both name and weight.");
-      return;
-    }
+  // const handleAddDimension = () => {
+  //   // Validate inputs
+  //   if (!dimensionName || !dimensionWeight) {
+  //     alert("Please provide both name and weight.");
+  //     return;
+  //   }
 
-    // Add the dimension to the lists
-    setNames([...names, dimensionName]);
-    setWeights([...weights, dimensionWeight]);
+  //   // Add the dimension to the lists
+  //   setNames([...names, dimensionName]);
+  //   setWeights([...weights, dimensionWeight]);
 
-    // Clear input fields
-    setDimensionName("");
-    setDimensionWeight("");
-  };
+  //   // Clear input fields
+  //   setDimensionName("");
+  //   setDimensionWeight("");
+  // };
 
   const getGroupInfo = async () => {
     try {
-      const groupInfo: any = await readContract({
+      const companyCID: any = await readContract({
         address: contractAddress,
         abi: contractABI,
-        functionName: "getGroupInfo",
-        args: [groupID],
+        functionName: "companyCID",
+        args: [],
       });
 
-      setGroupName(groupInfo[0]);
+      const getEmployees: any = await readContract({
+        address: contractAddress,
+        abi: contractABI,
+        functionName: "getEmployees",
+        args: [],
+      });
 
-      const CID = groupInfo[1];
+      setMembers(getEmployees)
+
+      
       let config: any = {
         method: "get",
-        url: `https://${CID}.ipfs.w3s.link/file.json`,
+        url: `https://${companyCID}.ipfs.w3s.link/file.json`,
         headers: {},
       };
       const axiosResponse = await axios(config);
 
-      const groupData = axiosResponse.data;
-
-      setGroupLogo(groupData.groupLogo);
-      setMembers(groupData.groupMembers);
+      const companyData = axiosResponse.data;
+      setCompanyName(companyData.companyName)
+      setCompanyLogo(companyData.companyLogo);
     } catch (error) {}
   };
 
-  const handleCreateDimensions = async () => {
+  const addEmployee = async () => {
     try {
-      // Convert weights to uint256
-      const weightsUint = weights.map((weight: any) =>
-        ethers.utils.parseUnits(weight.toString(), 18)
-      );
-      const setDimension: any = await writeContract({
-        address: contractAddress,
-        abi: contractABI,
-        functionName: "setDimensions",
-        args: [groupID, names, weightsUint],
+
+      const companyAddress = "0x6DA905039A92BB0b34dB510085EbE84C9d292491"
+      
+      const addWorker: any = await writeContract({
+        address: DEFI_WAGE_MANAGER_CONTRACT,
+        abi: DEFI_WAGE_MANAGER_ABI,
+        functionName: "addEmployee",
+        args: [employeeAddress, companyAddress, employeeWage],
       });
 
+      if(addWorker) {
+        toast.success('Successfull')
+      }
+
       // Clear input fields
-      setNames([]);
-      setWeights([]);
+      // setNames([]);
+      // setWeights([]);
     } catch (error) {
       console.error("Error adding dimensions:", error);
     }
@@ -99,7 +110,7 @@ export const CompanyInfo = ({
       // This code will run when the component unmounts
       // You can clean up any resources or subscriptions here
     };
-  }, [groupID]); // The empty dependency array means this effect runs once, like componentDidMount
+  }, []); // The empty dependency array means this effect runs once, like componentDidMount
 
   return (
     <>
@@ -107,9 +118,9 @@ export const CompanyInfo = ({
 
       <div className="max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
         <div className="avatar avatar-ring-primary mr-5">
-          <img src={`https://ipfs.io/ipfs/${groupLogo}`} alt="avatar" />
+          <img src={`https://ipfs.io/ipfs/${companyLogo}`} alt="avatar" />
         </div>
-        <span className="font-bol text-xl py-5 mb-5 pb-5"> {groupName} TechFusion </span>
+        <span className="font-bol text-xl py-5 mb-5 pb-5"> {companyName} </span>
 
         <div className="font-bol text-xl py-5 mb-5 pb-5"> Members</div>
 
@@ -125,11 +136,11 @@ export const CompanyInfo = ({
             </thead>
             <tbody>
               {members.map((member: any, index: any) => (
-                <tr key={member.wallet}>
+                <tr key={+1}>
                   <th>{++id}</th>
-                  <td>{member.name}</td>
-                  <td>{member.wallet}</td>
-                  <td>voted</td>
+                  <td>{}</td>
+                  <td>{member}</td>
+                  <td></td>
                 </tr>
               ))}
             </tbody>
@@ -144,8 +155,7 @@ export const CompanyInfo = ({
             <input
               className="py-2 px-3 pr-11 block   border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
               type="text"
-              value={dimensionName}
-              onChange={(e) => setDimensionName(e.target.value)}
+              onChange={(e) => setEmployeeName(e.target.value)}
             />
           </div>
           <div className="mt-2">
@@ -153,8 +163,7 @@ export const CompanyInfo = ({
             <input
               className="py-2 px-3 pr-11 block   border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
               type="text"
-              value={dimensionName}
-              onChange={(e) => setDimensionName(e.target.value)}
+              onChange={(e) => setEmployeeAddress(e.target.value)}
             />
           </div>
           <div className="mt-2">
@@ -162,13 +171,12 @@ export const CompanyInfo = ({
             <input
               className="py-2 px-3 pr-11 block  border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
               type="number"
-              value={dimensionWeight}
-              onChange={(e) => setDimensionWeight(e.target.value)}
+              onChange={(e) => setEmployeeWage(e.target.value)}
             />
           </div>
           <button
             type="button"
-            onClick={handleAddDimension}
+            onClick={addEmployee}
             className="py-2 mt-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
           >
             Add Employee
@@ -188,7 +196,7 @@ export const CompanyInfo = ({
         <div>
              <button
             type="button"
-            onClick={handleAddDimension}
+            onClick={addEmployee}
             className="py-2 ml-2 mt-3  px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-gradient-to-tl from-blue-600 to-yellow-600 shadow-lg shadow-transparent hover:shadow-blue-700/50 border border-transparentfocus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
           >
           Withdraw Salary
@@ -205,12 +213,12 @@ export const CompanyInfo = ({
             <input
               className="py-2 px-3 pr-11 block ml-2 mt-1  border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
               type="text"
-              value={dimensionName}
-              onChange={(e) => setDimensionName(e.target.value)}
+              value={''}
+              // onChange={(e) => setDimensionName(e.target.value)}
             />
              <button
             type="button"
-            onClick={handleAddDimension}
+            // onClick={handleAddDimension}
             className="py-2 ml-2 mt-3 mt-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
           >
            Request Loan

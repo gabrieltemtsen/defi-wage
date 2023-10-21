@@ -15,16 +15,16 @@ function Dashboard({
 }) {
   const { address } = useAccount();
   const [selectedItem, setSelectedItem] = useState(null);
-  const [selectedId, setSelectedId] = useState(null);
+  const [selectedCompany, setSelectedCompany] = useState(null);
 
-  const handleSidebarItemClick = (item: any, id: any) => {
+  const handleSidebarItemClick = (item: any, contractAdd: any) => {
     setSelectedItem(item);
     if (item === "Group") {
-      setSelectedId(id);
+      setSelectedCompany(contractAdd);
     }
   };
 
-  useEffect(() => {}, [selectedId]);
+  useEffect(() => {}, [selectedCompany]);
 
   if (!address) {
     return <PleaseLogin />;
@@ -50,7 +50,7 @@ function Dashboard({
       } else if (selectedItem === "Group") {
         return (
           <CompanyInfo
-            currentID={selectedId}
+            contractAdd={selectedCompany}
             contractAddress={contractAddress}
             contractABI={contractABI}
             address={address}
