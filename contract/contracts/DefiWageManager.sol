@@ -6,7 +6,7 @@ contract DefiWageManager {
     uint256 public companyIdCounter;
     DefiWage[] public companies;
     mapping(address => uint256) public companyIDs;
-mapping(address => address[]) private employeeToCompanies;
+    mapping(address => address[]) private employeeToCompanies;
 
 
     function createCompany (string memory companyCID) public  returns (bool) {
