@@ -1,14 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
-import { writeContract, readContract } from "@wagmi/core";
+import { writeContract, readContract,waitForTransaction } from "@wagmi/core";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ethers } from "ethers";
+import toast from "react-hot-toast";
+import { DEFI_WAGE_ABI, DEFI_WAGE_MANAGER_ABI, DEFI_WAGE_MANAGER_CONTRACT, USDT_ABI, USDT_CONTRACT } from "../../utils/contracts";
 
 interface NavItem {
-  currentID: any;
+  contractAdd: any;
 }
 export const CompanyInfo = ({
-  currentID: groupID,
+  contractAdd: companyAddress,
   contractAddress,
   contractABI,
   address,
@@ -17,75 +19,195 @@ export const CompanyInfo = ({
   contractABI: any[];
   address: string;
 }) => {
-  const [groupName, setGroupName] = useState("");
-  const [groupLogo, setGroupLogo] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [companyLogo, setCompanyLogo] = useState("");
   const [members, setMembers] = useState<any>([]);
+  const [admin, setAdmin] = useState("");
 
-  const [dimensionName, setDimensionName] = useState("");
-  const [dimensionWeight, setDimensionWeight] = useState("");
-  const [names, setNames] = useState<any>([]);
-  const [weights, setWeights] = useState<any>([]);
+  const [depositAmount, setDepositAmount] = useState("");
+
+
+
+  const [employeeName, setEmployeeName] = useState("");
+  const [employeeAddress, setEmployeeAddress] = useState("");
+  const [employeeWage, setEmployeeWage] = useState<any>([]);
+  const [walletBalance, setWalletBalance] = useState<any>(0);
+  const [salary, setSalary] = useState<any>(0);
+  const [withdrawalAmount, setWithdrawalAmount] = useState<any>("");
+
+
+
 
   let id = 0;
+  let index = 0;
 
-  const handleAddDimension = () => {
-    // Validate inputs
-    if (!dimensionName || !dimensionWeight) {
-      alert("Please provide both name and weight.");
-      return;
+  const depositToCompany = async() => {
+    if(!depositAmount){
+      return toast.error('please enter amount')
     }
 
-    // Add the dimension to the lists
-    setNames([...names, dimensionName]);
-    setWeights([...weights, dimensionWeight]);
+ try {
+  const depositAmountInWei = Number(depositAmount) * Math.pow(10, 6)
+  
+  const ToApprove = ethers.utils.parseEther(depositAmount);
+console.log((Number(ToApprove)))
+  const approve: any = await writeContract({
+    address: USDT_CONTRACT,
+    abi: USDT_ABI,
+    functionName: "approve",
+    args: [companyAddress,ToApprove ],
+  });
+ 
 
+  const deposit: any = await writeContract({
+    address: companyAddress,
+    abi: DEFI_WAGE_ABI,
+    functionName: "depositUSDT",
+    args: [ToApprove],
+  });
+  if(deposit) {
+    toast.success('Deposited')
     // Clear input fields
-    setDimensionName("");
-    setDimensionWeight("");
+    setDepositAmount("");
+  }
+
+  
+ } catch (error) {
+  console.log(error)
+  
+ }
+
+
+    
+
+    
   };
 
-  const getGroupInfo = async () => {
+  const paySalaries = async () => {
     try {
-      const groupInfo: any = await readContract({
-        address: contractAddress,
-        abi: contractABI,
-        functionName: "getGroupInfo",
-        args: [groupID],
+
+      const {hash}: any = await writeContract({
+        address: companyAddress,
+        abi: DEFI_WAGE_ABI,
+        functionName: "addMonthlySalaries",
+        args: [],
+      });
+      const receipt = await waitForTransaction({ hash });
+      if (!receipt) {
+        toast.error("Failed to pay salaries");
+        return;
+      }
+      getGroupInfo();
+      
+    } catch (error) {
+      console.log(error)
+      
+    }
+  }
+  const withdrawWages = async () => {
+    try {
+      const depositAmountInWei = Number(depositAmount) * Math.pow(10, 6)
+  
+  const ToApprove = ethers.utils.parseEther(depositAmount);
+
+      const {hash}: any = await writeContract({
+        address: companyAddress,
+        abi: DEFI_WAGE_ABI,
+        functionName: "withdrawSalary",
+        args: [ToApprove],
+      });
+      const receipt = await waitForTransaction({ hash });
+      if (!receipt) {
+        toast.error("Failed to withdraw salary");
+        return;
+      }
+      getGroupInfo();
+      
+    } catch (error) {
+      console.log(error)
+      
+    }
+  }
+
+  const getGroupInfo = async () => {
+    console.log('hello')
+    try {
+
+      const companyCID: any = await readContract({
+        address: companyAddress,
+        abi: DEFI_WAGE_ABI,
+        functionName: "companyCID",
+        args: [],
       });
 
-      setGroupName(groupInfo[0]);
+      const companyAdmin: any = await readContract({
+        address: companyAddress,
+        abi: DEFI_WAGE_ABI,
+        functionName: "admin",
+        args: [],
+      });
 
-      const CID = groupInfo[1];
+      setAdmin(companyAdmin)
+      
+
+      const getEmployees: any = await readContract({
+        address: companyAddress,
+        abi: DEFI_WAGE_ABI,
+        functionName: "getEmployees",
+        args: [],
+      });
+
+      const getEmployeeWalletBalance: any = await readContract({
+        address: companyAddress,
+        abi: DEFI_WAGE_ABI,
+        functionName: "getEmployeeWalletBalance",
+        args: [address],
+      });
+      setWalletBalance(Number(getEmployeeWalletBalance))
+      const getEmployeeSalary: any = await readContract({
+        address: companyAddress,
+        abi: DEFI_WAGE_ABI,
+        functionName: "getEmployeeSalary",
+        args: [address],
+      });
+      setSalary(Number(getEmployeeSalary));
+
+      setMembers(getEmployees)
+
+      
       let config: any = {
         method: "get",
-        url: `https://${CID}.ipfs.w3s.link/file.json`,
+        url: `https://${companyCID}.ipfs.w3s.link/file.json`,
         headers: {},
       };
       const axiosResponse = await axios(config);
 
-      const groupData = axiosResponse.data;
-
-      setGroupLogo(groupData.groupLogo);
-      setMembers(groupData.groupMembers);
+      const companyData = axiosResponse.data;
+      setCompanyName(companyData.companyName)
+      setCompanyLogo(companyData.companyLogo);
     } catch (error) {}
   };
 
-  const handleCreateDimensions = async () => {
+  const addEmployee = async () => {
     try {
-      // Convert weights to uint256
-      const weightsUint = weights.map((weight: any) =>
-        ethers.utils.parseUnits(weight.toString(), 18)
-      );
-      const setDimension: any = await writeContract({
-        address: contractAddress,
-        abi: contractABI,
-        functionName: "setDimensions",
-        args: [groupID, names, weightsUint],
+
+      
+      
+      const addWorker: any = await writeContract({
+        address: DEFI_WAGE_MANAGER_CONTRACT,
+        abi: DEFI_WAGE_MANAGER_ABI,
+        functionName: "addEmployee",
+        args: [employeeAddress, companyAddress, employeeWage],
       });
+      getGroupInfo()
+
+      if(addWorker) {
+        toast.success('Successfull')
+      }
 
       // Clear input fields
-      setNames([]);
-      setWeights([]);
+      // setNames([]);
+      // setWeights([]);
     } catch (error) {
       console.error("Error adding dimensions:", error);
     }
@@ -99,7 +221,7 @@ export const CompanyInfo = ({
       // This code will run when the component unmounts
       // You can clean up any resources or subscriptions here
     };
-  }, [groupID]); // The empty dependency array means this effect runs once, like componentDidMount
+  }, [address, salary]); // The empty dependency array means this effect runs once, like componentDidMount
 
   return (
     <>
@@ -107,9 +229,9 @@ export const CompanyInfo = ({
 
       <div className="max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
         <div className="avatar avatar-ring-primary mr-5">
-          <img src={`https://ipfs.io/ipfs/${groupLogo}`} alt="avatar" />
+          <img src={`https://ipfs.io/ipfs/${companyLogo}`} alt="avatar" />
         </div>
-        <span className="font-bol text-xl py-5 mb-5 pb-5"> {groupName} </span>
+        <span className="font-bol text-xl py-5 mb-5 pb-5"> {companyName} </span>
 
         <div className="font-bol text-xl py-5 mb-5 pb-5"> Members</div>
 
@@ -118,101 +240,148 @@ export const CompanyInfo = ({
             <thead>
               <tr>
                 <th>SN</th>
-                <th>Name</th>
+                {/* <th>Name</th> */}
                 <th>Address</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
               {members.map((member: any, index: any) => (
-                <tr key={member.wallet}>
+                <tr key={++index}>
                   <th>{++id}</th>
-                  <td>{member.name}</td>
-                  <td>{member.wallet}</td>
-                  <td>voted</td>
+                  {/* <td>{}</td> */}
+                  <td>{member}</td>
+                  <td>Employee</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
         <div className=" mt-7 divider my-0"></div>
-        <div className="font-bol text-xl py-5 mb-5 pb-2"> SET DIMENSIONs</div>
-
-        <form>
-          <div>
-            <label>Name:</label>
-            <input
-              className="py-2 px-3 pr-11 block   border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
-              type="text"
-              value={dimensionName}
-              onChange={(e) => setDimensionName(e.target.value)}
-            />
-          </div>
-          <div>
-            <label>Weight:</label>
-            <input
-              className="py-2 px-3 pr-11 block  border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
-              type="number"
-              value={dimensionWeight}
-              onChange={(e) => setDimensionWeight(e.target.value)}
-            />
-          </div>
-          <button
-            type="button"
-            onClick={handleAddDimension}
-            className="py-2 mt-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
-          >
-            Add Dimension
-          </button>
-        </form>
-
-        {names.length > 0 && (
+        {address == admin && (
           <>
-            <h2 className="font-bold mt-1">Added Dimensions</h2>
-            <ul>
-              {names.map((name: any, index: any) => (
-                <li key={index}>
-                  Name: {name} -- Weight: {weights[index]}
-                </li>
-              ))}
-            </ul>
-            <button
-              type="button"
-              onClick={handleCreateDimensions}
-              className="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
-            >
-              Create Dimensions
-            </button>
-          </>
-        )}
+          <div className="font-bol text-xl py-5 mb-5 pb-2"> Add Employee</div>
 
-        <div className=" mt-7 divider my-0"></div>
-        <div className="font-bol text-xl py-5 mb-5 pb-5">
+<form>
+  <div>
+    <label>Name:</label>
+    <input
+      className="py-2 px-3 pr-11 block   border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
+      type="text"
+      onChange={(e) => setEmployeeName(e.target.value)}
+    />
+  </div>
+  <div className="mt-2">
+    <label>Address:</label>
+    <input
+      className="py-2 px-3 pr-11 block   border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
+      type="text"
+      onChange={(e) => setEmployeeAddress(e.target.value)}
+    />
+  </div>
+  <div className="mt-2">
+    <label>Wage(monthly):</label>
+    <input
+      className="py-2 px-3 pr-11 block  border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
+      type="number"
+      onChange={(e) => setEmployeeWage(e.target.value)}
+    />
+  </div>
+  <button
+    type="button"
+    onClick={addEmployee}
+    className="py-2 mt-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
+  >
+    Add Employee
+  </button>
+</form>
+
+<div className=" mt-7 divider my-0"></div>
+          </>
+
+        )}
+        
+        <div className="font-bol text-xl py-5 mb-3 pb-5">
+          
           {" "}
-          DISTRIBUTION AND EVALUATION RESULTS
-        </div>
+          Your Available Wallet Balance: <strong> {walletBalance} USDT</strong>  <span className="font-bold ml-4 mr-4">|  </span> Your monthly wage:<strong> {salary} USDT</strong>
+        </div> 
 
         <div className="flex w-full overflow-x-auto">
-          <table className="table-zebra table">
-            <thead>
-              <tr>
-                <th>SN</th>
-                <th>Address</th>
-                <th>Percentage(%)</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th>1</th>
-                <td>Ox...90</td>
-                <td>40</td>
-                <td>100 $</td>
-              </tr>
-            </tbody>
-          </table>
+          
+          
+        <div>
+        <input
+             className="py-2 px-3 pr-11 block ml-2 mt-1  border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
+             type="text"
+             
+             onChange={(e) => setWithdrawalAmount(e.target.value)}
+           />
+             <button
+            type="button"
+            onClick={withdrawWages}
+            className="py-2 ml-2 mt-3  px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-gradient-to-tl from-blue-600 to-yellow-600 shadow-lg shadow-transparent hover:shadow-blue-700/50 border border-transparentfocus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
+          >
+          Withdraw Salary
+          </button>
+          </div>
         </div>
+        <div className=" mt-7 divider my-0"></div>
+
+        
+          
+          
+        
+          {address !== admin && (
+            <>
+             <div className="flex w-full overflow-x-auto">
+          <div>
+            <label className="ml-2">Loan Amount:</label>
+            <input
+              className="py-2 px-3 pr-11 block ml-2 mt-1  border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
+              type="text"
+              
+              // onChange={(e) => setDimensionName(e.target.value)}
+            />
+             <button
+            type="button"
+            // onClick={handleAddDimension}
+            className="py-2 ml-2 mt-3 mt-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
+          >
+           Request Loan
+          </button>
+          </div>
+        </div>
+        <div className=" mt-7 divider my-0"></div>
+            </>
+          ) ? <>
+          </> :
+           <div>
+            <button
+    type="button"
+    onClick={paySalaries}
+    className="py-2 mt-2 px-3 mb-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
+  >
+    Pay Monthly Wages
+  </button> <br />
+           <label className="ml-2 mt-5">Deposit Amount To Company:</label>
+           <input
+             className="py-2 px-3 pr-11 block ml-2 mt-1  border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
+             type="text"
+             
+             onChange={(e) => setDepositAmount(e.target.value)}
+           />
+            <button
+           type="button"
+           onClick={depositToCompany}
+           className="py-2 ml-2 mt-3 mt-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
+         >
+          Deposit
+         </button>
+         </div>}
+         
       </div>
+      
     </>
   );
 };

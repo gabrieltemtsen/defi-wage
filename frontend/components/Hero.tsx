@@ -12,7 +12,7 @@ import {
 import { useAccount } from "wagmi";
 import { getNetwork, watchNetwork, writeContract } from "@wagmi/core";
 import { parseEther } from "viem";
-import { AVALANCHE_CONTRACT_ADDRESS, ECOMMERCE_ABI } from "../utils/contracts";
+import { DEFI_WAGE_MANAGER_ABI, DEFI_WAGE_MANAGER_CONTRACT } from "../utils/contracts";
 import Link from "next/link";
 
 
@@ -57,26 +57,23 @@ const Hero = () => {
 
         const companyCID = await putJSONandGetHash(obj);
     
-          if(chain?.id == 43113) {
+         
             const { hash } = await writeContract({
-              address: AVALANCHE_CONTRACT_ADDRESS,
-              abi: ECOMMERCE_ABI,
-              functionName: "createProduct",
-              args: [],
+              address: DEFI_WAGE_MANAGER_CONTRACT,
+              abi: DEFI_WAGE_MANAGER_ABI,
+              functionName: "createCompany",
+              args: [companyCID],
             });
     
             if (hash) {
-              toast.success("Successfully created Product on Avalanche");
+              toast.success("Successfully created your company, click on view company to proceed");
     
               setInTxn(false);
               closeModal();
             } else {
               setInTxn(false);
             }
-          }
-     
-     
-
+          
      
       } else {
         toast.error("Please complete the form and try again");
@@ -105,7 +102,7 @@ const Hero = () => {
           </p>
           <span className="group-hover:bg-white/[.1] py-2 px-3 inline-flex justify-center items-center gap-x-2 rounded-full bg-white/[.075] font-semibold text-white text-sm">
             <svg className="w-2.5 h-2.5" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M5.27921 2L10.9257 7.64645C11.1209 7.84171 11.1209 8.15829 10.9257 8.35355L5.27921 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M5.27921 2L10.9257 7.64645C11.1209 7.84171 11.1209 8.15829 10.9257 8.35355L5.27921 14" stroke="currentColor" strokeWidth="2" stroke-linecap="round"/>
             </svg>
           </span>
         </a>
@@ -128,13 +125,13 @@ const Hero = () => {
         <Link onClick={openModal} className="inline-flex justify-center items-center gap-x-3 text-center bg-gradient-to-tl from-blue-600 to-yellow-600 shadow-lg shadow-transparent hover:shadow-blue-700/50 border border-transparent text-white text-sm font-medium rounded-full focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 focus:ring-offset-white py-3 px-6 dark:focus:ring-offset-gray-800" href="#">
           Register company
           <svg className="w-2.5 h-2.5" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M5.27921 2L10.9257 7.64645C11.1209 7.84171 11.1209 8.15829 10.9257 8.35355L5.27921 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M5.27921 2L10.9257 7.64645C11.1209 7.84171 11.1209 8.15829 10.9257 8.35355L5.27921 14" stroke="currentColor" strokeWidth="2" stroke-linecap="round"/>
           </svg>
         </Link>
         <Link className="inline-flex justify-center items-center gap-x-1 text-center bg-gradient-to-tl from-blue-900 to-black-900 shadow-lg shadow-transparent hover:shadow-black-700/50 border border-transparent text-white text-sm font-medium rounded-full focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 focus:ring-offset-white py-3 px-6 dark:focus:ring-offset-gray-800 mx-5" href="/dashboard">
           View company
           <svg className="w-2.5 h-2.5" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M5.27921 2L10.9257 7.64645C11.1209 7.84171 11.1209 8.15829 10.9257 8.35355L5.27921 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M5.27921 2L10.9257 7.64645C11.1209 7.84171 11.1209 8.15829 10.9257 8.35355L5.27921 14" stroke="currentColor" strokeWidth="2" stroke-linecap="round"/>
           </svg>
         </Link>
         <Transition appear show={isOpen} as={Fragment}>

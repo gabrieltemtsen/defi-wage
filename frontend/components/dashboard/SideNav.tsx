@@ -5,6 +5,8 @@ import { shortenAddress } from "../../utils/shortenAddress";
 import { readContract } from "@wagmi/core";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { DEFI_WAGE_ABI, DEFI_WAGE_MANAGER_ABI, DEFI_WAGE_MANAGER_CONTRACT } from "../../utils/contracts";
+import axios from "axios";
 
 const SideNav = ({
   onItemClick,
@@ -17,40 +19,139 @@ const SideNav = ({
   contractABI: any[];
   address: string;
 }) => {
-  const [userGroups, setUserGroups] = useState<any[]>([]);
+  const [userCompanies, setUserCompanies] = useState<any[]>([]);
 
-  const getUsersGroup = async () => {
+  const [adminCompanies, setAdminCompanies] = useState<any[]>([]);
+
+  const [allAdmins, setAdmins] = useState<any[]>([]);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false)
+
+  const getAdmins = () => {
+    console.log('HkELLp', isAdmin)
+    for(let i =0; i<allAdmins.length; i++) {
+      if(address == allAdmins[i]){
+        console.log(true)
+        setIsAdmin(true)
+      }
+      setIsAdmin(false)
+    }
+  }
+  
+
+
+  const getUserCompanies = async () => {
     try {
-      const groupsIndices: any = await readContract({
-        address: contractAddress,
-        abi: contractABI,
-        functionName: "getGroupsOfUser",
+      const employeeCompanies: any = await readContract({
+        address: DEFI_WAGE_MANAGER_CONTRACT,
+        abi: DEFI_WAGE_MANAGER_ABI,
+        functionName: "getEmployeeCompanies",
         args: [address],
       });
+      const adminCompanies: any = await readContract({
+        address: DEFI_WAGE_MANAGER_CONTRACT,
+        abi: DEFI_WAGE_MANAGER_ABI,
+        functionName: "getAdminCompanies",
+        args: [address],
+      });
+      const getAllCompanies: any = await readContract({
+        address: DEFI_WAGE_MANAGER_CONTRACT,
+        abi: DEFI_WAGE_MANAGER_ABI,
+        functionName: "getCompanies",
+        args: [],
+      });
 
-      let userGroupsInfo: any[] = [];
-      for (const groupIndex of groupsIndices) {
-        const groupInfo: any = await readContract({
-          address: contractAddress,
-          abi: contractABI,
-          functionName: "getGroupInfo",
-          args: [groupIndex],
+      let companyInfo: any[] = [];
+      let adminCompanyInfo: any[] = [];
+      let allAdmin = []
+
+      for (let i=0; i<employeeCompanies.length; i++ ) {
+
+        const companyCID: any = await readContract({
+          address: employeeCompanies[i],
+          abi: DEFI_WAGE_ABI,
+          functionName: "companyCID",
+          args: [],
         });
-        userGroupsInfo.push({
-          groupIndex,
-          name: groupInfo[0],
-          ID: groupInfo[1],
+
+        const admin: any = await readContract({
+          address: employeeCompanies[i],
+          abi: DEFI_WAGE_ABI,
+          functionName: "admin",
+          args: [],
         });
+        allAdmin.push(admin)
+        
+
+       
+
+        if (companyCID) {
+          let config: any = {
+            method: "get",
+            url: `https://${companyCID}.ipfs.w3s.link/file.json`,
+            headers: {},
+          };
+          const axiosResponse = await axios(config);
+
+          const companyDataObj = axiosResponse.data;
+
+          const companyAdress = employeeCompanies[i];
+
+          const companyObject = {
+            companyAddress: companyAdress,
+            companyData: companyDataObj
+          }
+          
+
+
+          companyInfo.push(companyObject)
+        }
+
       }
-      setUserGroups(userGroupsInfo);
+      for (let i=0; i<adminCompanies.length; i++ ) {
+
+        const companyCID: any = await readContract({
+          address: adminCompanies[i],
+          abi: DEFI_WAGE_ABI,
+          functionName: "companyCID",
+          args: [],
+        });
+       
+        if (companyCID) {
+          let config: any = {
+            method: "get",
+            url: `https://${companyCID}.ipfs.w3s.link/file.json`,
+            headers: {},
+          };
+          const axiosResponse = await axios(config);
+
+          const companyDataObj = axiosResponse.data;
+          const companyAdress = adminCompanies[i];
+
+          const companyObject = {
+            companyAddress: companyAdress,
+            companyData: companyDataObj
+          }
+          
+
+
+          
+          adminCompanyInfo.push(companyObject)
+        }
+
+      }
+      setUserCompanies(companyInfo);
+      setAdmins(allAdmin)
+      setAdminCompanies(adminCompanyInfo);
+      console.log(userCompanies)
     } catch (error) {
       console.log(error);
     }
   };
 
   useEffect(() => {
-    getUsersGroup();
-  }, []);
+    getAdmins()
+    getUserCompanies();
+  }, [address]);
 
   return (
     <>
@@ -140,89 +241,58 @@ const SideNav = ({
                         </span>
                       </label>
 
-                      <div className="menu-item-collapse">
-                        <div className="min-h-0">
-						<label onClick={() => onItemClick('Group')} className="menu-item ml-6">ETH Global-TeamBTC</label>
-						<label className="menu-item ml-6">TeamEthers</label> 
-                          {/* <label  className="menu-item menu-item-disabled ml-6">Open-Data-Hack-TeamPluto</label>
-										<label onClick={() => onItemClick('Group')} className="menu-item ml-6">ETH Global-TeamBTC</label>
-										<label className="menu-item ml-6">TeamEthers</label> */}
-                          {/* {userGroups.map((group) => (
+                     
+                      {userCompanies.map((company) => (
+                        <div className="menu-item-collapse"
+                        key={+1}
+                        onClick={() =>
+                          onItemClick("Group", company.companyAddress)
+                        }>
+                        <div className="min-h-0 menu-item ml-6" >                 
+                          
                             <label
-                              key={group.ID}
-                              onClick={() =>
-                                onItemClick("Group", group.groupIndex)
-                              }
-                              className="menu-item ml-6"
-                            >
-                              {group.name}
-                            </label>
-                          ))} */}
-                        </div>
-                      </div>
+                            
+                            
+                          >
+                            
+                              {company.companyData.companyName}
+                              </label>
+                              </div>
+
+                              </div>
+                            
+                          ))}
+                          
+                       
+                     
                     </li>
                   </ul>
                 </section>
                 <div className="divider my-0"></div>
-                {/* <section className="menu-section px-4">
-                  <span className="menu-title">Utility</span>
+               
+                  <section className="menu-section px-4">
+                  <span className="menu-title">Owned Companies</span>
                   <ul className="menu-items">
-                    <li className="menu-item">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="opacity-75"
-                        width="22"
-                        height="22"
-                        viewBox="0 0 24 24"
-                        strokeWidth="2"
-                        stroke="currentColor"
-                        fill="none"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path
-                          stroke="none"
-                          d="M0 0h24v24H0z"
-                          fill="none"
-                        ></path>
-                        <path d="M3 21l18 0"></path>
-                        <path d="M3 10l18 0"></path>
-                        <path d="M5 6l7 -3l7 3"></path>
-                        <path d="M4 10l0 11"></path>
-                        <path d="M20 10l0 11"></path>
-                        <path d="M8 14l0 3"></path>
-                        <path d="M12 14l0 3"></path>
-                        <path d="M16 14l0 3"></path>
-                      </svg>
-                      Vault
-                    </li>
+                    
+                    {adminCompanies.map((company) => (
+                            <li
+                            className="menu-item"
+                              key={+1}
+                              onClick={() =>
+                                onItemClick("Group", 1)
+                              }
+                              
+                            >
+                               {company.companyData.companyName}
+                            </li>
+                          ))}
+                    
 
-                    <li className="menu-item">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="opacity-75"
-                        width="22"
-                        height="22"
-                        viewBox="0 0 24 24"
-                        strokeWidth="2"
-                        stroke="currentColor"
-                        fill="none"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path
-                          stroke="none"
-                          d="M0 0h24v24H0z"
-                          fill="none"
-                        ></path>
-                        <path d="M7 10l5 -6l5 6"></path>
-                        <path d="M21 10l-2 8a2 2.5 0 0 1 -2 2h-10a2 2.5 0 0 1 -2 -2l-2 -8z"></path>
-                        <path d="M12 15m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
-                      </svg>
-                      Contributions
-                    </li>
+                    
                   </ul>
-                </section> */}
+                </section>
+
+                
               </nav>
             </section>
             <section className="sidebar-footer justify-end bg-gray-2 pt-2">

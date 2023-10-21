@@ -6,26 +6,30 @@ contract DefiWageManager {
     uint256 public companyIdCounter;
     DefiWage[] public companies;
     mapping(address => uint256) public companyIDs;
-mapping(address => address[]) private employeeToCompanies;
+    mapping(address => address[]) private employeeToCompanies;
+    mapping(address => address[]) private adminToCompanies;
 
 
     function createCompany (string memory companyCID) public  returns (bool) {
         uint256 companyID = companyIdCounter;
         companyIdCounter++;
-        DefiWage company = new DefiWage(companyCID, msg.sender);
+        DefiWage company = new DefiWage(companyCID, msg.sender,companyID);
         companies.push(company);
         companyIDs[address(company)] = companyID;
+        adminToCompanies[msg.sender].push(address(company));
         return true;
     }
    
-    function addEmployee(address _employeeAddress, address _companyAddress)public returns (bool){
+    function addEmployee(address _employeeAddress, address _companyAddress, uint256 _salary)public returns (bool){
     uint256 companyId = companyIDs[_companyAddress];
 
     address companyAdmin = companies[companyId].getAdmin();
     
     require (msg.sender == companyAdmin , 'No Access') ;
     companies[companyId].addEmployee(_employeeAddress);
+     companies[companyId].setEmployeeSalary(_employeeAddress, _salary);
     employeeToCompanies[_employeeAddress].push(_companyAddress);
+
     return true; 
   }
   function getCompanies() external view returns(address[] memory _companies) {
@@ -39,6 +43,10 @@ mapping(address => address[]) private employeeToCompanies;
 function getEmployeeCompanies(address _employeeAddress) external view returns (address[] memory) {
 
     return employeeToCompanies[_employeeAddress];
+}
+function getAdminCompanies(address _admin) external view returns (address[] memory) {
+
+    return adminToCompanies[_admin];
 }
 //   function getCompaniesData(address[] memory _companyList) external view returns (string[] memory companyCID, address[] memory employees) {
 //         companyCID = new string[](_companyList.length);
@@ -54,3 +62,4 @@ function getEmployeeCompanies(address _employeeAddress) external view returns (a
 //     }
     
 }
+//0x1f449b09b7bceb99e3e6Ac4ACDD91dA9e99BB41b
