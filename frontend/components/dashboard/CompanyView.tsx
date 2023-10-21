@@ -1,10 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
-import { writeContract, readContract } from "@wagmi/core";
+import { writeContract, readContract,waitForTransaction } from "@wagmi/core";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ethers } from "ethers";
 import toast from "react-hot-toast";
-import { DEFI_WAGE_MANAGER_ABI, DEFI_WAGE_MANAGER_CONTRACT } from "../../utils/contracts";
+import { DEFI_WAGE_ABI, DEFI_WAGE_MANAGER_ABI, DEFI_WAGE_MANAGER_CONTRACT, USDT_ABI, USDT_CONTRACT } from "../../utils/contracts";
 
 interface NavItem {
   contractAdd: any;
@@ -22,45 +22,148 @@ export const CompanyInfo = ({
   const [companyName, setCompanyName] = useState("");
   const [companyLogo, setCompanyLogo] = useState("");
   const [members, setMembers] = useState<any>([]);
+  const [admin, setAdmin] = useState("");
+
+  const [depositAmount, setDepositAmount] = useState("");
+
+
 
   const [employeeName, setEmployeeName] = useState("");
   const [employeeAddress, setEmployeeAddress] = useState("");
   const [employeeWage, setEmployeeWage] = useState<any>([]);
-  const [weights, setWeights] = useState<any>([]);
+  const [walletBalance, setWalletBalance] = useState<any>(0);
+  const [salary, setSalary] = useState<any>(0);
+
+
 
   let id = 0;
+  let index = 0;
 
-  // const handleAddDimension = () => {
-  //   // Validate inputs
-  //   if (!dimensionName || !dimensionWeight) {
-  //     alert("Please provide both name and weight.");
-  //     return;
-  //   }
+  const depositToCompany = async() => {
+    if(!depositAmount){
+      return toast.error('please enter amount')
+    }
 
-  //   // Add the dimension to the lists
-  //   setNames([...names, dimensionName]);
-  //   setWeights([...weights, dimensionWeight]);
+ try {
+  const amountToApprove = ethers.utils.parseEther(depositAmount, 6);
 
-  //   // Clear input fields
-  //   setDimensionName("");
-  //   setDimensionWeight("");
-  // };
+  const approve: any = await writeContract({
+    address: USDT_CONTRACT,
+    abi: USDT_ABI,
+    functionName: "approve",
+    args: [companyAddress,amountToApprove ],
+  });
+ 
+
+  const deposit: any = await writeContract({
+    address: companyAddress,
+    abi: DEFI_WAGE_ABI,
+    functionName: "depositUSDT",
+    args: [amountToApprove],
+  });
+  if(deposit) {
+    toast.success('Deposited')
+    // Clear input fields
+    setDepositAmount("");
+  }
+
+  
+ } catch (error) {
+  console.log(error)
+  
+ }
+
+
+    
+
+    
+  };
+
+  const paySalaries = async () => {
+    try {
+
+      const {hash}: any = await writeContract({
+        address: companyAddress,
+        abi: DEFI_WAGE_ABI,
+        functionName: "addMonthlySalaries",
+        args: [],
+      });
+      const receipt = await waitForTransaction({ hash });
+      if (!receipt) {
+        toast.error("Failed to pay salaries");
+        return;
+      }
+      getGroupInfo();
+      
+    } catch (error) {
+      console.log(error)
+      
+    }
+  }
+  const withdrawWages = async () => {
+    try {
+
+      const {hash}: any = await writeContract({
+        address: companyAddress,
+        abi: DEFI_WAGE_ABI,
+        functionName: "withdrawSalary",
+        args: [],
+      });
+      const receipt = await waitForTransaction({ hash });
+      if (!receipt) {
+        toast.error("Failed to withdraw salary");
+        return;
+      }
+      getGroupInfo();
+      
+    } catch (error) {
+      console.log(error)
+      
+    }
+  }
 
   const getGroupInfo = async () => {
+    console.log('hello')
     try {
+
       const companyCID: any = await readContract({
-        address: contractAddress,
-        abi: contractABI,
+        address: companyAddress,
+        abi: DEFI_WAGE_ABI,
         functionName: "companyCID",
         args: [],
       });
 
+      const companyAdmin: any = await readContract({
+        address: companyAddress,
+        abi: DEFI_WAGE_ABI,
+        functionName: "admin",
+        args: [],
+      });
+
+      setAdmin(companyAdmin)
+      
+
       const getEmployees: any = await readContract({
-        address: contractAddress,
-        abi: contractABI,
+        address: companyAddress,
+        abi: DEFI_WAGE_ABI,
         functionName: "getEmployees",
         args: [],
       });
+
+      const getEmployeeWalletBalance: any = await readContract({
+        address: companyAddress,
+        abi: DEFI_WAGE_ABI,
+        functionName: "getEmployeeWalletBalance",
+        args: [address],
+      });
+      setWalletBalance(Number(getEmployeeWalletBalance))
+      const getEmployeeSalary: any = await readContract({
+        address: companyAddress,
+        abi: DEFI_WAGE_ABI,
+        functionName: "getEmployeeSalary",
+        args: [address],
+      });
+      setSalary(Number(getEmployeeSalary));
 
       setMembers(getEmployees)
 
@@ -81,7 +184,7 @@ export const CompanyInfo = ({
   const addEmployee = async () => {
     try {
 
-      const companyAddress = "0x6DA905039A92BB0b34dB510085EbE84C9d292491"
+      
       
       const addWorker: any = await writeContract({
         address: DEFI_WAGE_MANAGER_CONTRACT,
@@ -89,6 +192,7 @@ export const CompanyInfo = ({
         functionName: "addEmployee",
         args: [employeeAddress, companyAddress, employeeWage],
       });
+      getGroupInfo()
 
       if(addWorker) {
         toast.success('Successfull')
@@ -110,7 +214,7 @@ export const CompanyInfo = ({
       // This code will run when the component unmounts
       // You can clean up any resources or subscriptions here
     };
-  }, []); // The empty dependency array means this effect runs once, like componentDidMount
+  }, [address, salary]); // The empty dependency array means this effect runs once, like componentDidMount
 
   return (
     <>
@@ -129,65 +233,71 @@ export const CompanyInfo = ({
             <thead>
               <tr>
                 <th>SN</th>
-                <th>Name</th>
+                {/* <th>Name</th> */}
                 <th>Address</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
               {members.map((member: any, index: any) => (
-                <tr key={+1}>
+                <tr key={++index}>
                   <th>{++id}</th>
-                  <td>{}</td>
+                  {/* <td>{}</td> */}
                   <td>{member}</td>
-                  <td></td>
+                  <td>Employee</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
         <div className=" mt-7 divider my-0"></div>
-        <div className="font-bol text-xl py-5 mb-5 pb-2"> Add Employee</div>
+        {address == admin && (
+          <>
+          <div className="font-bol text-xl py-5 mb-5 pb-2"> Add Employee</div>
 
-        <form>
-          <div>
-            <label>Name:</label>
-            <input
-              className="py-2 px-3 pr-11 block   border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
-              type="text"
-              onChange={(e) => setEmployeeName(e.target.value)}
-            />
-          </div>
-          <div className="mt-2">
-            <label>Address:</label>
-            <input
-              className="py-2 px-3 pr-11 block   border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
-              type="text"
-              onChange={(e) => setEmployeeAddress(e.target.value)}
-            />
-          </div>
-          <div className="mt-2">
-            <label>Wage(monthly):</label>
-            <input
-              className="py-2 px-3 pr-11 block  border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
-              type="number"
-              onChange={(e) => setEmployeeWage(e.target.value)}
-            />
-          </div>
-          <button
-            type="button"
-            onClick={addEmployee}
-            className="py-2 mt-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
-          >
-            Add Employee
-          </button>
-        </form>
+<form>
+  <div>
+    <label>Name:</label>
+    <input
+      className="py-2 px-3 pr-11 block   border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
+      type="text"
+      onChange={(e) => setEmployeeName(e.target.value)}
+    />
+  </div>
+  <div className="mt-2">
+    <label>Address:</label>
+    <input
+      className="py-2 px-3 pr-11 block   border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
+      type="text"
+      onChange={(e) => setEmployeeAddress(e.target.value)}
+    />
+  </div>
+  <div className="mt-2">
+    <label>Wage(monthly):</label>
+    <input
+      className="py-2 px-3 pr-11 block  border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
+      type="number"
+      onChange={(e) => setEmployeeWage(e.target.value)}
+    />
+  </div>
+  <button
+    type="button"
+    onClick={addEmployee}
+    className="py-2 mt-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
+  >
+    Add Employee
+  </button>
+</form>
 
-        <div className=" mt-7 divider my-0"></div>
+<div className=" mt-7 divider my-0"></div>
+          </>
+
+        )}
+        
         <div className="font-bol text-xl py-5 mb-3 pb-5">
           
           {" "}
-          Your Available Wallet Balance: <strong> 0 USDT</strong>  <span className="font-bold ml-4 mr-4">|  </span> Your monthly wage:<strong> 0 USDT</strong>
+          Your Available Wallet Balance: <strong> {walletBalance} USDT</strong>  <span className="font-bold ml-4 mr-4">|  </span> Your monthly wage:<strong> {salary} USDT</strong>
         </div> 
 
         <div className="flex w-full overflow-x-auto">
@@ -196,7 +306,7 @@ export const CompanyInfo = ({
         <div>
              <button
             type="button"
-            onClick={addEmployee}
+            onClick={withdrawWages}
             className="py-2 ml-2 mt-3  px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-gradient-to-tl from-blue-600 to-yellow-600 shadow-lg shadow-transparent hover:shadow-blue-700/50 border border-transparentfocus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
           >
           Withdraw Salary
@@ -205,15 +315,19 @@ export const CompanyInfo = ({
         </div>
         <div className=" mt-7 divider my-0"></div>
 
-        <div className="flex w-full overflow-x-auto">
+        
           
           
-        <div>
+        
+          {address !== admin && (
+            <>
+             <div className="flex w-full overflow-x-auto">
+          <div>
             <label className="ml-2">Loan Amount:</label>
             <input
               className="py-2 px-3 pr-11 block ml-2 mt-1  border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
               type="text"
-              value={''}
+              
               // onChange={(e) => setDimensionName(e.target.value)}
             />
              <button
@@ -226,6 +340,33 @@ export const CompanyInfo = ({
           </div>
         </div>
         <div className=" mt-7 divider my-0"></div>
+            </>
+          ) ? <>
+          </> :
+           <div>
+            <button
+    type="button"
+    onClick={paySalaries}
+    className="py-2 mt-2 px-3 mb-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
+  >
+    Pay Monthly Wages
+  </button> <br />
+           <label className="ml-2 mt-5">Deposit Amount To Company:</label>
+           <input
+             className="py-2 px-3 pr-11 block ml-2 mt-1  border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
+             type="text"
+             
+             onChange={(e) => setDepositAmount(e.target.value)}
+           />
+            <button
+           type="button"
+           onClick={depositToCompany}
+           className="py-2 ml-2 mt-3 mt-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
+         >
+          Deposit
+         </button>
+         </div>}
+         
       </div>
       
     </>

@@ -31,6 +31,7 @@ contract DefiWage {
 
     function depositUSDT(uint amount) public onlyAdmin {
         IERC20 usdc = IERC20(0x690000EF01deCE82d837B5fAa2719AE47b156697);
+        
         require(usdc.transferFrom(admin, address(this), amount), 'Deposit failed');
     }
 
@@ -69,13 +70,13 @@ contract DefiWage {
         }
     }
 
-    function withdrawSalary() public {
+      function withdrawSalary(uint _amount) public {
         address employee = msg.sender;
         uint balance = employeeWalletBalances[employee];
         require(balance > 0, 'No salary to withdraw');
 
-        IERC20 usdc = IERC20(0x690000EF01deCE82d837B5fAa2719AE47b156697);
-        require(usdc.transfer(employee, balance), 'Transfer failed');
-        employeeWalletBalances[employee] = 0; // Reset wallet balance after withdrawal
+        IERC20 usdt = IERC20(0x3c725F9622779c4Aa225bED987056e32326f8094);
+        require(usdt.transfer(employee, _amount), 'Transfer failed');
+        employeeWalletBalances[employee] - _amount;
     }
 }
