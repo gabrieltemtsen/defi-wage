@@ -33,6 +33,8 @@ export const CompanyInfo = ({
   const [employeeWage, setEmployeeWage] = useState<any>([]);
   const [walletBalance, setWalletBalance] = useState<any>(0);
   const [salary, setSalary] = useState<any>(0);
+  const [withdrawalAmount, setWithdrawalAmount] = useState<any>("");
+
 
 
 
@@ -102,12 +104,13 @@ export const CompanyInfo = ({
   }
   const withdrawWages = async () => {
     try {
+      const amountToApprove = ethers.utils.parseEther(withdrawalAmount, 6);
 
       const {hash}: any = await writeContract({
         address: companyAddress,
         abi: DEFI_WAGE_ABI,
         functionName: "withdrawSalary",
-        args: [],
+        args: [amountToApprove],
       });
       const receipt = await waitForTransaction({ hash });
       if (!receipt) {
@@ -304,6 +307,12 @@ export const CompanyInfo = ({
           
           
         <div>
+        <input
+             className="py-2 px-3 pr-11 block ml-2 mt-1  border-gray-200 shadow-sm -mt-px -ml-px first:rounded-t-lg last:rounded-b-lg sm:last:rounded-r-lg text-sm relative focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
+             type="text"
+             
+             onChange={(e) => setWithdrawalAmount(e.target.value)}
+           />
              <button
             type="button"
             onClick={withdrawWages}
