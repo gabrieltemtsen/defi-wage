@@ -45,7 +45,7 @@ function Dashboard({
         //     contractABI={contractABI}
         //     address={address}
         //   />
-        ''
+        <h1 className="text-2xl font-bold text-center">Loans: Coming soon... </h1>
         );
       } else if (selectedItem === "Group") {
         return (

@@ -59,7 +59,7 @@ const Features = () => {
             
 
             <span className="text-sm sm:text-base text-gray-500">
-              <span className="font-bold">Less routine</span> – more creativity
+              <span className="font-bold">Low costs</span> – Covered by zk Scroll rollup 
             </span>
           </li>
 
@@ -72,7 +72,7 @@ const Features = () => {
             
 
             <span className="text-sm sm:text-base text-gray-500">
-              Hundreds of thousands saved
+              Seamless and Innovative Tech
             </span>
           </li>
 
@@ -85,7 +85,7 @@ const Features = () => {
             
 
             <span className="text-sm sm:text-base text-gray-500">
-              Scale budgets <span className="font-bold">efficiently</span>
+              Scaling solutions <span className="font-bold">Improving Traditional systems</span>
             </span>
           </li>
         </ul>

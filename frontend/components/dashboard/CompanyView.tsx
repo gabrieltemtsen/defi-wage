@@ -195,6 +195,7 @@ console.log((Number(ToApprove)))
       const axiosResponse = await axios(config);
 
       const companyData = axiosResponse.data;
+      console.log(companyData)
       setCompanyName(companyData.companyName)
       setCompanyLogo(companyData.companyLogo);
     } catch (error) {}
@@ -228,6 +229,7 @@ console.log((Number(ToApprove)))
 
   useEffect(() => {
     getGroupInfo();
+    
 
     // You can also return a cleanup function if needed
     return () => {

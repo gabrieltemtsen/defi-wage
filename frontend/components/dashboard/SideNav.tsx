@@ -191,7 +191,7 @@ const SideNav = ({
 
                     <li
                       className="menu-item "
-                      onClick={() => onItemClick("create-group")}
+                      onClick={() => onItemClick("loans")}
                     >
                      
                       <span>Loans</span>

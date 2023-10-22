@@ -51,7 +51,7 @@ const Hero = () => {
         const productImgCID = await pushImgToStorage(companyLogo);
         const obj = {
           companyName: companyName,
-          companyLogo: companyLogo,
+          companyLogo: productImgCID,
           companyDescription: description,
         };
 
@@ -117,7 +117,7 @@ const Hero = () => {
      
 
       <div className="max-w-3xl text-center mx-auto">
-        <p className="text-lg text-gray-400">Register your company and automate salary payments, allowing your members to collect loans based on repayment terms.</p>
+        <p className="text-lg text-gray-400">Register your company workspace and automate salary payments, allowing your members to collect loans based on repayment terms.</p>
       </div>
 
      
