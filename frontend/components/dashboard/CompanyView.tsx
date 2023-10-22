@@ -64,7 +64,7 @@ console.log((Number(ToApprove)))
   const deposit: any = await writeContract({
     address: companyAddress,
     abi: DEFI_WAGE_ABI,
-    functionName: "depositUSDT",
+    functionName: "depositUSDC",
     args: [ToApprove],
   });
   getGroupInfo()
@@ -118,7 +118,7 @@ console.log((Number(ToApprove)))
         address: companyAddress,
         abi: DEFI_WAGE_ABI,
         functionName: "withdrawSalary",
-        args: [0.1],
+        args: [ToApprove],
       });
       const receipt = await waitForTransaction({ hash });
       if (!receipt) {
