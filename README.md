@@ -49,7 +49,7 @@ DeFi-Wage is so good, it's worth stealing for! (Just kidding, please don't steal
 ```bash
 
 
-DeFi Wage Manager Contract: 
+DeFi Wage Manager Contract: 0x9012537AB7E6Fc7f3e5CB37E5c98ad0150823318
 ''
 
 ```
