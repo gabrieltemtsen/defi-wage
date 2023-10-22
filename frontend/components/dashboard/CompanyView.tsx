@@ -3,7 +3,7 @@ import { writeContract, readContract,waitForTransaction } from "@wagmi/core";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ethers } from "ethers";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { DEFI_WAGE_ABI, DEFI_WAGE_MANAGER_ABI, DEFI_WAGE_MANAGER_CONTRACT, USDT_ABI, USDT_CONTRACT } from "../../utils/contracts";
 
 interface NavItem {
@@ -236,10 +236,11 @@ console.log((Number(ToApprove)))
       // This code will run when the component unmounts
       // You can clean up any resources or subscriptions here
     };
-  }, [address, salary, walletBalance]); // The empty dependency array means this effect runs once, like componentDidMount
+  }, [address, salary, walletBalance, companyAddress]); // The empty dependency array means this effect runs once, like componentDidMount
 
   return (
     <>
+    <Toaster />
       <h1 className="text-2xl font-bold text-center">Organisation Info </h1>
 
       <div className="max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">

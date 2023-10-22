@@ -18,13 +18,16 @@ function Dashboard({
   const [selectedCompany, setSelectedCompany] = useState(null);
 
   const handleSidebarItemClick = (item: any, contractAdd: any) => {
+    
     setSelectedItem(item);
     if (item === "Group") {
       setSelectedCompany(contractAdd);
     }
   };
 
-  useEffect(() => {}, [selectedCompany]);
+  useEffect(() => {}, [selectedCompany ]);
+
+ 
 
   if (!address) {
     return <PleaseLogin />;
