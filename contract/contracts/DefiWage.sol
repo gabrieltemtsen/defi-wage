@@ -8,8 +8,14 @@ contract DefiWage {
     uint public companyID;
     address public admin;
     address[] public employees;
-    mapping(address => uint) public employeeSalaries;
-    mapping(address => uint) public employeeWalletBalances;
+    mapping(address => uint256) public employeeSalaries;
+    mapping(address => uint256) public employeeWalletBalances;
+
+    struct Loan {
+        uint256 loanAmount;
+        bool approved;
+    }
+    mapping(address => Loan) public loans;
 
     constructor(string memory _companyCID, address _admin, uint _companyID) {
         companyCID = _companyCID;
@@ -29,10 +35,10 @@ contract DefiWage {
         _;
     }
 
-    function depositUSDT(uint amount) public onlyAdmin {
+    function depositUSDC(uint256 amount) public onlyAdmin payable {
         IERC20 usdc = IERC20(0x690000EF01deCE82d837B5fAa2719AE47b156697);
         
-        require(usdc.transferFrom(admin, address(this), amount), 'Deposit failed');
+        require(usdc.transferFrom(admin, payable(address(this)), amount), 'Deposit failed');
     }
 
     function addEmployee(address _employeeAddress) public onlyOneEmployee(_employeeAddress) returns (bool) {
@@ -46,11 +52,11 @@ contract DefiWage {
         return true;
     }
 
-    function getEmployeeSalary(address _employeeAddress) public view returns (uint) {
+    function getEmployeeSalary(address _employeeAddress) public view returns (uint256) {
         return employeeSalaries[_employeeAddress];
     }
 
-    function getEmployeeWalletBalance(address _employeeAddress) public view returns (uint) {
+    function getEmployeeWalletBalance(address _employeeAddress) public view returns (uint256) {
         return employeeWalletBalances[_employeeAddress];
     }
 
@@ -63,20 +69,32 @@ contract DefiWage {
     }
 
     function addMonthlySalaries() public onlyAdmin {
-        for (uint i = 0; i < employees.length; i++) {
+        for (uint256 i = 0; i < employees.length; i++) {
             address employee = employees[i];
-            uint salary = employeeSalaries[employee];
+            uint256 salary = employeeSalaries[employee];
             employeeWalletBalances[employee] += salary;
         }
     }
 
-      function withdrawSalary(uint _amount) public {
+      function withdrawSalary(uint256 _amount) public {
         address employee = msg.sender;
-        uint balance = employeeWalletBalances[employee];
+        uint256 balance = employeeWalletBalances[employee];
         require(balance > 0, 'No salary to withdraw');
 
-        IERC20 usdt = IERC20(0x3c725F9622779c4Aa225bED987056e32326f8094);
-        require(usdt.transfer(employee, _amount), 'Transfer failed');
-        employeeWalletBalances[employee] - _amount;
+        IERC20 usdc = IERC20(0x690000EF01deCE82d837B5fAa2719AE47b156697);
+        require(usdc.transfer(employee, balance), 'Transfer failed');
+         employeeWalletBalances[employee] - _amount; 
+        
+    }
+    function requestLoan(uint256 _amount) public {
+        loans[msg.sender]=  Loan(_amount, false);
+
+    }
+    function approveLoan() public {
+        
+    }
+
+    receive() external payable {
+        // Handle the received Ether here
     }
 }

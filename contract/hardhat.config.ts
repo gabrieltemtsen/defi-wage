@@ -22,7 +22,7 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      scrollSepolia: 'abi' || '',
+      scrollSepolia: 'abc' || '',
     },
     customChains: [
       {

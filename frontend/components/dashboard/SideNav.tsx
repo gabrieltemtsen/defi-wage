@@ -279,7 +279,7 @@ const SideNav = ({
                             className="menu-item"
                               key={+1}
                               onClick={() =>
-                                onItemClick("Group", 1)
+                                onItemClick("Group", company.companyAddress)
                               }
                               
                             >

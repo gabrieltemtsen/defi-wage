@@ -34,6 +34,9 @@ export const CompanyInfo = ({
   const [walletBalance, setWalletBalance] = useState<any>(0);
   const [salary, setSalary] = useState<any>(0);
   const [withdrawalAmount, setWithdrawalAmount] = useState<any>("");
+  const [companyBalance, setCompanyBalanace] = useState<any>();
+
+
 
 
 
@@ -47,17 +50,16 @@ export const CompanyInfo = ({
     }
 
  try {
-  const depositAmountInWei = Number(depositAmount) * Math.pow(10, 6)
   
   const ToApprove = ethers.utils.parseEther(depositAmount);
 console.log((Number(ToApprove)))
-  const approve: any = await writeContract({
+  const {hash}: any = await writeContract({
     address: USDT_CONTRACT,
     abi: USDT_ABI,
     functionName: "approve",
     args: [companyAddress,ToApprove ],
   });
- 
+  const receipt = await waitForTransaction({ hash });
 
   const deposit: any = await writeContract({
     address: companyAddress,
@@ -65,6 +67,7 @@ console.log((Number(ToApprove)))
     functionName: "depositUSDT",
     args: [ToApprove],
   });
+  getGroupInfo()
   if(deposit) {
     toast.success('Deposited')
     // Clear input fields
@@ -106,15 +109,16 @@ console.log((Number(ToApprove)))
   }
   const withdrawWages = async () => {
     try {
-      const depositAmountInWei = Number(depositAmount) * Math.pow(10, 6)
+      const depositAmountInWei = Number(withdrawalAmount) * Math.pow(10, 6)
   
-  const ToApprove = ethers.utils.parseEther(depositAmount);
+  const ToApprove = ethers.utils.parseEther(withdrawalAmount);
+  console.log(Number(ToApprove))
 
       const {hash}: any = await writeContract({
         address: companyAddress,
         abi: DEFI_WAGE_ABI,
         functionName: "withdrawSalary",
-        args: [ToApprove],
+        args: [0.1],
       });
       const receipt = await waitForTransaction({ hash });
       if (!receipt) {
@@ -139,6 +143,14 @@ console.log((Number(ToApprove)))
         functionName: "companyCID",
         args: [],
       });
+
+      const bal: any = await readContract({
+        address: USDT_CONTRACT,
+        abi: USDT_ABI,
+        functionName: "balanceOf",
+        args: [companyAddress],
+      });
+      setCompanyBalanace(Number(bal))
 
       const companyAdmin: any = await readContract({
         address: companyAddress,
@@ -362,7 +374,7 @@ console.log((Number(ToApprove)))
     onClick={paySalaries}
     className="py-2 mt-2 px-3 mb-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
   >
-    Pay Monthly Wages
+    Pay Monthly Wages    
   </button> <br />
            <label className="ml-2 mt-5">Deposit Amount To Company:</label>
            <input
@@ -378,6 +390,7 @@ console.log((Number(ToApprove)))
          >
           Deposit
          </button>
+         <br /> Company Balance: {companyBalance}
          </div>}
          
       </div>

@@ -1,4 +1,4 @@
-export const DEFI_WAGE_MANAGER_CONTRACT = "0xea663Fa72E75283daC6A200D51Fd2b2dD55C630E"
+export const DEFI_WAGE_MANAGER_CONTRACT = "0x20089B148825512b814B9452A9b0389Ee6b9FBBe"
 export const USDT_CONTRACT = "0x690000EF01deCE82d837B5fAa2719AE47b156697"
 
 //   0xbe8a71B877d3117423f9d32B5e19Bdb82b0b93dE
@@ -189,7 +189,7 @@ export const USDT_ABI =  [
   }
 ]
 
-export const DEFI_WAGE_ABI = [
+export const DEFI_WAGE_ABI =[
   {
     "inputs": [
       {
@@ -252,6 +252,13 @@ export const DEFI_WAGE_ABI = [
   },
   {
     "inputs": [],
+    "name": "approveLoan",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "companyCID",
     "outputs": [
       {
@@ -284,9 +291,9 @@ export const DEFI_WAGE_ABI = [
         "type": "uint256"
       }
     ],
-    "name": "depositUSDT",
+    "name": "depositUSDC",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -414,6 +421,43 @@ export const DEFI_WAGE_ABI = [
     "inputs": [
       {
         "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "loans",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "loanAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "approved",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "requestLoan",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "_employeeAddress",
         "type": "address"
       },
@@ -435,11 +479,21 @@ export const DEFI_WAGE_ABI = [
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
     "name": "withdrawSalary",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]
 
