@@ -150,7 +150,7 @@ console.log((Number(ToApprove)))
         functionName: "balanceOf",
         args: [companyAddress],
       });
-      setCompanyBalanace(Number(bal))
+      setCompanyBalanace(ethers.utils.formatEther(bal))
 
       const companyAdmin: any = await readContract({
         address: companyAddress,
@@ -175,14 +175,14 @@ console.log((Number(ToApprove)))
         functionName: "getEmployeeWalletBalance",
         args: [address],
       });
-      setWalletBalance(Number(getEmployeeWalletBalance))
+      setWalletBalance(ethers.utils.formatEther(getEmployeeWalletBalance))
       const getEmployeeSalary: any = await readContract({
         address: companyAddress,
         abi: DEFI_WAGE_ABI,
         functionName: "getEmployeeSalary",
         args: [address],
       });
-      setSalary(Number(getEmployeeSalary));
+      setSalary(ethers.utils.formatEther(getEmployeeSalary));
 
       setMembers(getEmployees)
 
@@ -203,13 +203,14 @@ console.log((Number(ToApprove)))
   const addEmployee = async () => {
     try {
 
-      
+      const wage = ethers.utils.parseEther(employeeWage);
+
       
       const addWorker: any = await writeContract({
         address: DEFI_WAGE_MANAGER_CONTRACT,
         abi: DEFI_WAGE_MANAGER_ABI,
         functionName: "addEmployee",
-        args: [employeeAddress, companyAddress, employeeWage],
+        args: [employeeAddress, companyAddress, wage],
       });
       getGroupInfo()
 
@@ -233,7 +234,7 @@ console.log((Number(ToApprove)))
       // This code will run when the component unmounts
       // You can clean up any resources or subscriptions here
     };
-  }, [address, salary]); // The empty dependency array means this effect runs once, like componentDidMount
+  }, [address, salary, walletBalance]); // The empty dependency array means this effect runs once, like componentDidMount
 
   return (
     <>
@@ -316,7 +317,7 @@ console.log((Number(ToApprove)))
         <div className="font-bol text-xl py-5 mb-3 pb-5">
           
           {" "}
-          Your Available Wallet Balance: <strong> {walletBalance} USDT</strong>  <span className="font-bold ml-4 mr-4">|  </span> Your monthly wage:<strong> {salary} USDT</strong>
+          Your Available Wallet Balance: <strong> {walletBalance} USDC</strong>  <span className="font-bold ml-4 mr-4">|  </span> Your monthly wage:<strong> {salary} USDC</strong>
         </div> 
 
         <div className="flex w-full overflow-x-auto">
@@ -390,7 +391,7 @@ console.log((Number(ToApprove)))
          >
           Deposit
          </button>
-         <br /> Company Balance: {companyBalance}
+         <br /> Company Balance: {companyBalance} USDC
          </div>}
          
       </div>

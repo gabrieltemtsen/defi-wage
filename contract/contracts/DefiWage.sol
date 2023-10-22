@@ -80,10 +80,12 @@ contract DefiWage {
         address employee = msg.sender;
         uint256 balance = employeeWalletBalances[employee];
         require(balance > 0, 'No salary to withdraw');
+        require(balance >= _amount, 'Amount exceeds balance');
 
         IERC20 usdc = IERC20(0x690000EF01deCE82d837B5fAa2719AE47b156697);
-        require(usdc.transfer(employee, balance), 'Transfer failed');
-         employeeWalletBalances[employee] - _amount; 
+        require(usdc.transfer(employee, _amount), 'Transfer failed');
+        uint256 newBal = employeeWalletBalances[employee] - _amount; 
+        employeeWalletBalances[employee] = newBal;
         
     }
     function requestLoan(uint256 _amount) public {
