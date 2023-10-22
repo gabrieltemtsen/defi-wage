@@ -1,13 +1,24 @@
-# Sample Hardhat Project
+# DeFi-Wage Smart Conrtacts
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+## Installation
+1. Clone the repository to your local machine: 
+```bash
+git clone https://github.com/gabrieltemtsen/defi-wage/
 
-Try running some of the following tasks:
-
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
+```
+2. Change to the project directory: 
+```bash
+cd defi-wage/contract
+```
+3. Install the required dependencies: 
+```bash
+npm install
+```
+## Usage
+Once you have completed the installation, you can compile it using the following 
+command: 
+```bash
+npx hardhat compile
 npx hardhat run scripts/deploy.ts
 ```
+

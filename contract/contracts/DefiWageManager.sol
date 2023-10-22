@@ -48,18 +48,6 @@ function getAdminCompanies(address _admin) external view returns (address[] memo
 
     return adminToCompanies[_admin];
 }
-//   function getCompaniesData(address[] memory _companyList) external view returns (string[] memory companyCID, address[] memory employees) {
-//         companyCID = new string[](_companyList.length);
-//         employees = new address[](_companyList.length);
-        
-//         for (uint256 i = 0; i < _companyList.length; i++) {
-//             uint256 companyID = companyIDs[_companyList[i]];
-//             companyCID[i] = companies[companyID].companyCID();
-//             employees[i] = companies[companyID].getEmployees();
-//         }
-        
-//         return (companyCID, employees);
-//     }
-    
+
 }
 //0x1f449b09b7bceb99e3e6Ac4ACDD91dA9e99BB41b
